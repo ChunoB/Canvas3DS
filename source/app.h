@@ -86,6 +86,7 @@ char       *xstrdup(const char *s);
 float       doc_width(void);
 float       doc_scale(void);
 void        toast(const char *m);
+void        ui_show_update(void);                    // opens the "update now?" window
 bool        keyboard(const char *hint, char *out, size_t n, bool multiline);
 
 extern char g_user_name[96];

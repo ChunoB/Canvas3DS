@@ -1048,7 +1048,7 @@ View *view_open_row(View *from, Row *r)
 			config_save();
 			break;
 		case 7:
-			if (updater_state() == UPD_AVAILABLE) updater_install();
+			if (updater_state() == UPD_AVAILABLE) ui_show_update();
 			else if (!updater_busy() && updater_state() != UPD_DONE) updater_check();
 			break;
 		case 8: return open_doc_html("Como gerar o token", setup_html(), L_SETUP);

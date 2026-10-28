@@ -34,8 +34,9 @@ ARQUIVOS
 - O 3DS nao abre PDF. "Baixar" salva em 3ds\Canvas3DS\arquivos no cartao.
 
 ATUALIZAR SEM TIRAR O CARTAO
-- O app procura versao nova sozinho. Va em Ajustes > Atualizacao > instalar.
-  Depois feche e abra o app.
+- O app procura versao nova sozinho ao abrir. Quando tiver, aparece a
+  janela "Versao nova": aperte A para baixar e instalar. Depois feche e
+  abra o app. Na mao: Ajustes > Atualizacao.
 
 LIMITES
 - Questionarios, videos e ferramentas externas so funcionam no site ou no
@@ -43,5 +44,10 @@ LIMITES
 - Redes com login (eduroam, Wi-Fi da faculdade com pagina de entrada) nao
   funcionam no 3DS: use o roteador de casa ou o hotspot do celular/PC.
 
-O QUE MUDOU NESTA VERSAO (1.0.0)
+O QUE MUDOU NESTA VERSAO (1.0.1)
+- Ao abrir, se tiver versao nova, o app pergunta "Atualizar agora?" e
+  instala com um toque (A).
+- Instalacao do .cia mais segura (reinstala por cima, como o FBI).
+
+VERSAO 1.0.0
 - Primeira versao.

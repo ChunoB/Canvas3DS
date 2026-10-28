@@ -31,7 +31,8 @@ static u64 toast_until, now_ms;
 typedef struct { float x, y, w, h; int id; } Btn;
 static Btn btns[16];
 static int nbtns;
-enum { B_BACK = 1, B_RELOAD, B_ACTION, B_SETTINGS, B_HOME, B_TZ_DN, B_TZ_UP };
+enum { B_BACK = 1, B_RELOAD, B_ACTION, B_SETTINGS, B_HOME, B_TZ_DN, B_TZ_UP, B_UPD_YES, B_UPD_NO };
+static bool upd_prompt, quit_app;
 
 static bool touch_down, dragging;
 static int touch_y0, touch_x0, last_ty;
@@ -345,6 +346,41 @@ static void draw_bottom(void)
 		button(264, FOOT_Y + 3, 52, 20, "+", B_TZ_UP, false);
 	} else if (v->loader != L_SETTINGS) button(236, FOOT_Y + 3, 80, 20, "Ajustes", B_SETTINGS, false);
 
+	// "new version" window
+	if (upd_prompt) {
+		nbtns = 0;
+		C2D_DrawRectSolid(0, 0, 0.5f, BOT_W, 240, C2D_Color32(0, 0, 0, 140));
+		C2D_DrawRectSolid(16, 36, 0.5f, 288, 168, C_CARD);
+		C2D_DrawRectSolid(16, 36, 0.5f, 288, 22, C_BAR);
+		text_draw("Atualização", 160, 39, 0.46f, C_WHITE, 0, 1);
+		UpdState st = updater_state();
+		char t[128];
+		if (st == UPD_AVAILABLE) {
+			snprintf(t, sizeof t, "Versão %s disponível", updater_latest());
+			text_draw(t, 160, 70, 0.55f, C_TEXT, 270, 1);
+			snprintf(t, sizeof t, "Você tem a %s. Baixa pelo Wi-Fi e instala sozinho.", updater_version());
+			text_draw(t, 160, 96, 0.4f, C_SUB, 276, 1);
+			button(32, 124, 256, 30, "Atualizar agora (A)", B_UPD_YES, true);
+			button(32, 162, 256, 30, "Depois (B)", B_UPD_NO, false);
+		} else if (st == UPD_DOWNLOADING || st == UPD_INSTALLING || st == UPD_CHECKING) {
+			text_draw(st == UPD_INSTALLING ? "Instalando..." : "Baixando...", 160, 74, 0.55f, C_TEXT, 270, 1);
+			text_draw(updater_message(), 160, 100, 0.4f, C_SUB, 276, 1);
+			float p = updater_progress();
+			C2D_DrawRectSolid(40, 132, 0.5f, 240, 10, C_LINE);
+			C2D_DrawRectSolid(40, 132, 0.5f, 240 * (p < 0 ? 0 : p > 1 ? 1 : p), 10, C_ACCENT);
+			text_draw("Não desligue o 3DS", 160, 160, 0.4f, C_SUB, 0, 1);
+		} else if (st == UPD_DONE) {
+			text_draw("Pronto!", 160, 70, 0.6f, C_TEXT, 270, 1);
+			text_draw(updater_message(), 160, 96, 0.4f, C_SUB, 276, 1);
+			button(32, 124, 256, 30, "Fechar o app (A)", B_UPD_YES, true);
+			button(32, 162, 256, 30, "Continuar (B)", B_UPD_NO, false);
+		} else {
+			text_draw("Não deu para atualizar", 160, 74, 0.55f, C_TEXT, 270, 1);
+			text_draw(updater_message(), 160, 100, 0.4f, C_SUB, 276, 1);
+			button(32, 150, 256, 30, "OK (B)", B_UPD_NO, false);
+		}
+	}
+
 	// toast
 	if (now_ms < toast_until) {
 		float w = text_width(toast_msg, 0.45f) + 20;
@@ -384,10 +420,23 @@ static void open_selected(void)
 	}
 }
 
+void ui_show_update(void) { upd_prompt = true; }
+
+static void update_answer(bool yes)
+{
+	UpdState st = updater_state();
+	if (updater_busy()) return;
+	if (yes && st == UPD_AVAILABLE) updater_install();
+	else if (yes && st == UPD_DONE) quit_app = true;
+	else if (!yes) upd_prompt = false;
+}
+
 static void press(int id)
 {
 	View *v = top();
 	switch (id) {
+	case B_UPD_YES: update_answer(true); break;
+	case B_UPD_NO: update_answer(false); break;
 	case B_BACK: pop(); break;
 	case B_HOME: go_home(); break;
 	case B_RELOAD: reload(); break;
@@ -433,6 +482,7 @@ static void handle_touch(u32 down, u32 held, u32 up)
 			Btn *b = &btns[i];
 			if (x >= b->x && x < b->x + b->w && y >= b->y && y < b->y + b->h) { press(b->id); return; }
 		}
+		if (upd_prompt) return;
 		if (y < HDR_H || y >= FOOT_Y) return;
 		if (v->kind == V_LIST) {
 			float ly = y - HDR_H + v->scroll, acc = 0;
@@ -458,6 +508,11 @@ static void handle_keys(u32 down, u32 rep, u32 held)
 {
 	View *v = top();
 	if (!v) return;
+	if (upd_prompt) {
+		if (down & KEY_A) update_answer(true);
+		else if (down & KEY_B) update_answer(false);
+		return;
+	}
 	if (down & KEY_B) { if (depth > 1) pop(); return; }
 	if (down & KEY_X) { reload(); return; }
 	if (down & KEY_SELECT) { push(view_settings()); return; }
@@ -563,10 +618,9 @@ int main(int argc, char **argv)
 		if (net_ok && !upd_checked && now_ms - t_start > 6000) { upd_checked = true; updater_check(); }
 		if (!upd_told && updater_state() == UPD_AVAILABLE) {
 			upd_told = true;
-			char m[100];
-			snprintf(m, sizeof m, "Versão %s disponível: Ajustes > Atualização", updater_latest());
-			toast(m);
+			upd_prompt = true;   // asks "update now?"
 		}
+		if (quit_app) break;
 		static UpdState last_us;
 		if (updater_state() != last_us) { last_us = updater_state(); view_refresh_settings(top()); }
 
