@@ -1,0 +1,47 @@
+CANVAS 3DS - como instalar
+==========================
+
+O Canvas da faculdade no 3DS (Old e New): cursos, tarefas e prazos, avisos,
+modulos, paginas, discussoes, arquivos, notas e caixa de entrada.
+Funciona pela API oficial do Canvas, com um token de acesso seu.
+
+NO 3DS (escolha um jeito)
+- No HOME Menu, como um jogo: copie "Canvas3DS.cia" para o SD e instale
+  pelo FBI. Depois pode apagar o .cia do SD.
+- Pelo Homebrew Launcher: copie "Canvas3DS.3dsx" para a pasta /3ds/ do SD.
+
+PRIMEIRA VEZ: O TOKEN
+1. No PC ou celular, entre em
+   https://einstein.instructure.com/profile/settings
+2. Em "Integracoes aprovadas", clique em "+ Novo token de acesso".
+3. Finalidade: 3DS. Deixe a data em branco. "Gerar token". Copie o token.
+4. Jeito facil: coloque o cartao SD no PC e rode pc\configurar_token.bat
+   (precisa do Python 3: https://www.python.org/downloads/, marque
+   "Add Python to PATH"). Ele confere o token e salva no cartao.
+   Ou: crie o arquivo 3ds\Canvas3DS\token.txt no cartao com o token dentro,
+   ou digite o token no proprio 3DS (Ajustes > Token de acesso).
+- O token fica so no cartao SD. Se perder o 3DS, apague o token no site.
+- Outra faculdade: Ajustes > Endereco do Canvas.
+
+CONTROLES
+- Direcional cima/baixo: escolher. A: abrir. B: voltar. X: recarregar.
+- L / R: pular varios itens (ou uma tela inteira nos textos).
+- Direcional circular: rolar. Toque na tela de baixo para abrir e arrastar.
+- Nos textos: esquerda/direita escolhem um link, A abre.
+- Y: responder mensagem / baixar arquivo. SELECT: Ajustes. START: sair.
+
+ARQUIVOS
+- O 3DS nao abre PDF. "Baixar" salva em 3ds\Canvas3DS\arquivos no cartao.
+
+ATUALIZAR SEM TIRAR O CARTAO
+- O app procura versao nova sozinho. Va em Ajustes > Atualizacao > instalar.
+  Depois feche e abra o app.
+
+LIMITES
+- Questionarios, videos e ferramentas externas so funcionam no site ou no
+  app do Canvas no celular. Imagens aparecem como [imagem].
+- Redes com login (eduroam, Wi-Fi da faculdade com pagina de entrada) nao
+  funcionam no 3DS: use o roteador de casa ou o hotspot do celular/PC.
+
+O QUE MUDOU NESTA VERSAO (1.0.0)
+- Primeira versao.
